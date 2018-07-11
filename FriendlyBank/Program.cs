@@ -15,39 +15,41 @@ namespace FriendlyBank
         Closed
     };
 
-    struct Account
+    class Account
     {
-        public AccountState State;
-        public string Name;
-        public string Address;
-        public int AccountNumber;
-        public int Balance;
-        public int Overdraft;
-    };
+        private decimal balance;
+        public static decimal InterestRateCharged = 10;
+
+        public bool WithdrawFunds( decimal amount)
+        {
+            if (balance < amount)
+            {
+                return false;
+            }
+            balance = balance - amount;
+            return true;
+        }
+
+        public void PayInFunds( decimal amount )
+        {
+            balance += amount;
+        }
+
+        public decimal GetBalance()
+        {
+            return balance;
+        }
+    }
 
     class BankProgram
     {
-        public static void PrintAccout(Account a)
-        {
-            Console.WriteLine("Name: " + a.Name);
-            Console.WriteLine("State: " + a.State);
-            Console.WriteLine("Balance: " + a.Balance);
-        }
 
         static void Main()
         {
-            const int MAX_CUST = 100;
-            Account[] Bank = new Account[MAX_CUST];
-            Bank[0].Name = "John";
-            Bank[0].Address = "Prague";
-            Bank[0].State = AccountState.Active;
-            Bank[0].Balance = 1000000;
-            PrintAccout(Bank[0]);
-            Bank[1].Name = "Jane";
-            Bank[1].State = AccountState.Frozen;
-            Bank[1].Balance = 0;
-            PrintAccout(Bank[1]);
-
+            Account JohnsAcc = new Account();
+            JohnsAcc.PayInFunds(100);
+            Console.WriteLine(JohnsAcc.GetBalance());
+            Console.WriteLine(Account.InterestRateCharged);
             Console.Read();
         }
 
