@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,12 +16,18 @@ namespace FriendlyBank
         Closed
     };
 
-    class Account
+    public interface IAccount
     {
-        private decimal balance;
-        public static decimal InterestRateCharged = 10;
+        bool WithdrawFunds(decimal amount);
+        void PayInFunds(decimal amount);
+        decimal GetBalance();
+    }
 
-        public bool WithdrawFunds( decimal amount)
+    public class CustomerAccount : IAccount
+    {
+        private decimal balance = 0;
+
+        public virtual bool WithdrawFunds ( decimal amount)
         {
             if (balance < amount)
             {
@@ -30,28 +37,60 @@ namespace FriendlyBank
             return true;
         }
 
-        public void PayInFunds( decimal amount )
+        public void PayInFunds ( decimal amount )
         {
             balance += amount;
         }
 
-        public decimal GetBalance()
+        public sealed decimal GetBalance()
         {
             return balance;
         }
     }
 
-    class BankProgram
+    public class BabyAccount : CustomerAccount, IAccount
     {
+        public override bool WithdrawFunds ( decimal amount )
+        {
+            if (amount > 10)
+            {
+                return false;
+            }
+            return base.WithdrawFunds(amount);
+        }
+    }
+
+    class Bank
+    {
+        const int MAX_CUST = 100;
 
         static void Main()
         {
-            Account JohnsAcc = new Account();
-            JohnsAcc.PayInFunds(100);
-            Console.WriteLine(JohnsAcc.GetBalance());
-            Console.WriteLine(Account.InterestRateCharged);
+            IAccount[] accounts = new IAccount[MAX_CUST];
+
+            accounts[0] = new CustomerAccount();
+            accounts[0].PayInFunds(100);
+            Console.WriteLine("Balance: {0}", accounts[0].GetBalance());
+
+            accounts[1] = new BabyAccount();
+            accounts[1].PayInFunds(50);
+            Console.WriteLine("Balance: {0}", accounts[1].GetBalance());
+
+            if (accounts[0].WithdrawFunds(20))
+            {
+                Console.WriteLine("Withdraw OK");
+            }
+
+            if (accounts[1].WithdrawFunds(20))
+            {
+                Console.WriteLine("Withdraw OK");
+            }
+            else
+            {
+                Console.WriteLine("Baby can withdraw max 10");
+            }
+
             Console.Read();
         }
-
     }
 }
